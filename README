@@ -1,0 +1,27 @@
+This is Perl module Net::Growl::GNTP.
+
+INSTALLATION
+
+Net::Growl::GNTP installation is straightforward. If your CPAN shell is set up,
+you should just be able to do
+
+    % cpan Net::Growl::GNTP
+
+Download it, unpack it, then build it as per the usual:
+
+    % perl Makefile.PL
+    % make && make test
+
+Then install it:
+
+    % make install
+
+DOCUMENTATION
+
+Net::Growl::GNTP documentation is available as in POD. So you can do:
+
+    % perldoc Net::Growl::GNTP
+
+to read the documentation online with your favorite pager.
+
+Default Name
