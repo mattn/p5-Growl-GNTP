@@ -1,4 +1,4 @@
-package Net::Growl::GNTP;
+package Growl::GNTP;
 
 use strict;
 use warnings;
@@ -7,7 +7,7 @@ use Data::UUID;
 use Crypt::CBC;
 use Digest::MD5 qw/md5_hex/;
 use Digest::SHA qw/sha1_hex sha256_hex/;
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 sub new {
     my $class = shift;
@@ -15,7 +15,7 @@ sub new {
     $args{Proto}    ||= 'tcp';
     $args{PeerHost} ||= 'localhost';
     $args{PeerPort} ||= 23053;
-    $args{AppName}  ||= 'Net::Growl::GNTP';
+    $args{AppName}  ||= 'Growl::GNTP';
     $args{AppIcon}  ||= '';
     $args{Password} ||= '';
     $args{PasswordHashAlgorithm} ||= 'MD5';
@@ -55,9 +55,9 @@ EOF
     for my $notification ( @{$notifications} ) {
         $count++;
         my %data = (
-            Name => $notification->{Name} || "Net::Growl::GNTP Notify$count",
+            Name => $notification->{Name} || "Growl::GNTP Notify$count",
             DisplayName => $notification->{DisplayName}
-              || $notification->{Name} || "Net::Growl::GNTP Notify$count",
+              || $notification->{Name} || "Growl::GNTP Notify$count",
             Enabled => _translate_bool($notification->{Enabled} || 'True'),
             Sticky => _translate_bool($notification->{Sticky} || 'True'),
             Priority => _translate_int($notification->{Priority} || 0),
@@ -380,12 +380,12 @@ __END__
 
 =head1 NAME
 
-Net::Growl::GNTP - Perl implementation of GNTP Protocol (Client Part)
+Growl::GNTP - Perl implementation of GNTP Protocol (Client Part)
 
 =head1 SYNOPSIS
 
-  use Net::Growl::GNTP;
-  my $growl = Net::Growl::GNTP->new(AppName => "my perl app");
+  use Growl::GNTP;
+  my $growl = Growl::GNTP->new(AppName => "my perl app");
   $growl->register([
       { Name => "foo", },
       { Name => "bar", },
@@ -400,7 +400,7 @@ Net::Growl::GNTP - Perl implementation of GNTP Protocol (Client Part)
 
 =head1 DESCRIPTION
 
-Net::Growl::GNTP is Perl implementation of GNTP Protocol (Client Part)
+Growl::GNTP is Perl implementation of GNTP Protocol (Client Part)
 
 =head1 CONSTRUCTOR
 
@@ -408,8 +408,8 @@ Net::Growl::GNTP is Perl implementation of GNTP Protocol (Client Part)
 
 =item new ( ARGS )
 
-Initialize Net::Growl::GNTP object. You can set few parameter of
-IO::Socket::INET. and application name will be given 'Net::Growl::GNTP' if you
+Initialize Growl::GNTP object. You can set few parameter of
+IO::Socket::INET. and application name will be given 'Growl::GNTP' if you
 does not specify it.
 
 =back

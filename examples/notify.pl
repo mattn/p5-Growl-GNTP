@@ -1,11 +1,11 @@
 use strict;
 use warnings;
 use lib qw/lib/;
-use Net::Growl::GNTP;
+use Growl::GNTP;
 
 binmode STDOUT, ':encoding(cp932)' if $^O eq 'MSWin32';
 
-my $growl = Net::Growl::GNTP->new(
+my $growl = Growl::GNTP->new(
     AppName  => "my perl app",
     Password => $ENV{'GROWL_PASSWORD'} || '',
     #Debug => 1,

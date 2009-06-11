@@ -1,6 +1,6 @@
 use inc::Module::Install;
-name 'Net-Growl-GNTP';
-all_from 'lib/Net/Growl/GNTP.pm';
+name 'Growl-GNTP';
+all_from 'lib/Growl/GNTP.pm';
 
 requires 'Data::UUID'  => 0.149;
 requires 'Crypt::CBC'  => 2.29;
