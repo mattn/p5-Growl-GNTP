@@ -7,7 +7,7 @@ use Data::UUID;
 use Crypt::CBC;
 use Digest::MD5 qw/md5_hex/;
 use Digest::SHA qw/sha1_hex sha256_hex/;
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub new {
     my $class = shift;
@@ -41,7 +41,10 @@ sub register {
         PeerPort => $self->{PeerPort},
         Proto    => $self->{Proto},
     );
-    die $@ unless $sock;
+    unless ($sock) {
+      warn "Cannot Register: $@";
+      return -1;
+    }
 
     my $form = <<EOF;
 Application-Name: $AppName
@@ -55,12 +58,13 @@ EOF
     for my $notification ( @{$notifications} ) {
         $count++;
         my %data = (
-            Name => $notification->{Name} || "Growl::GNTP Notify$count",
+            Name        => $notification->{Name} || "Growl::GNTP Notify$count",
             DisplayName => $notification->{DisplayName}
               || $notification->{Name} || "Growl::GNTP Notify$count",
-            Enabled => _translate_bool($notification->{Enabled} || 'True'),
-            Sticky => _translate_bool($notification->{Sticky} || 'True'),
-            Priority => _translate_int($notification->{Priority} || 0),
+            Enabled     => _translate_bool($notification->{Enabled} || 'True'),
+            Sticky      => _translate_bool($notification->{Sticky} || 'False'),
+            Priority    => _translate_int($notification->{Priority} || 0),
+            Icon        => $notification->{Icon} || '', # will default to Application-Icon if not specified.
         );
         $data{$_} =~ s!\r\n!\n! for ( keys %data );
 
@@ -70,12 +74,15 @@ Notification-Display-Name: \$(DisplayName)
 Notification-Enabled: \$(Enabled)
 Notification-Sticky: \$(Sticky)
 Notification-Priority: \$(Priority)
+Notification-Icon: \$(Icon)
 
 EOF
         $subform =~ s!\n!\r\n!g;
         $subform =~ s/\$\((\w+)\)/$data{$1}/ge;
         $form .= $subform;
     }
+
+    print $form if $self->{Debug};
     $form = _gen_header($self, 'REGISTER', $form);
     $sock->send($form);
 
@@ -96,32 +103,61 @@ sub notify {
         AppName             => $self->{AppName},
         Event               => $args{Event} || '',
         Title               => $args{Title} || '',
-        Message             => $args{Message} || '',
-        Icon                => $args{Icon} || '',
-        CallbackContextType => $args{CallbackContextType} || '',
-        CallbackContext     => $args{CallbackContext} || '',
-        CallbackFunction    => $args{CallbackFunction} || {},
+        Message             => $args{Message} || '',#optional
+        Icon                => $args{Icon} || '', #optional
+        ID                  => $args{ID} || '', # optional
+        Priority            => _translate_int($args{Priority} || 0), #optional
+        Sticky              => _translate_bool($args{Sticky} || 'False'), #optional
+        CallbackContext     => $args{CallbackContext} || '',#optional
+        CallbackContextType => $args{CallbackContextType} || '',#optional, required if CallbackContext
+        CallbackTarget      => $args{CallbackTarget} || '', #optional exclusive of CallbackContext[-Type] #!# for now, needs Context pair until GfW v2.0.0.20
+        CallbackFunction    => $args{CallbackFunction} || {}, #optional
+        Custom              => $args{Custom} || '', # optional
     );
     $data{$_} =~ s!\r\n!\n! for ( keys %data );
+
+    # once GfW v2.0.0.20, this CallbackTarget can be removed.
+    if ($data{CallbackTarget}) {
+        $data{CallbackContext} = $data{CallbackContext} || 'TARGET';
+        $data{CallbackContextType} = $data{CallbackContextType} || 'TARGET';
+    }
 
     my $sock = IO::Socket::INET->new(
         PeerAddr => $self->{PeerHost},
         PeerPort => $self->{PeerPort},
         Proto    => $self->{Proto},
     );
-    die $@ unless $sock;
+    unless ($sock) {
+        warn "Cannot Notify: $@";
+        return -1;
+    }
 
-    my $form = <<EOF;
-Application-Name: \$(AppName)
-Notification-Name: \$(Event)
-Notification-Title: \$(Title)
-Notification-Text: \$(Message)
-Notification-Icon: \$(Icon)
-Notification-Callback-Context: \$(CallbackContext)
-Notification-Callback-Context-Type: \$(CallbackContextType)
-EOF
-    $form =~ s!\n!\r\n!g;
-    $form =~ s/\$\((\w+)\)/$data{$1}/ge;
+    my $form;
+    $form.=sprintf("Application-Name: %s\r\r\n",$data{AppName});
+    $form.=sprintf("Notification-Name: %s\r\r\n",$data{Event});
+    $form.=sprintf("Notification-Title: %s\r\r\n",$data{Title});
+    $form.=sprintf("Notification-ID: %s\r\r\n",$data{ID}) if $data{ID};
+    $form.=sprintf("Notification-Priority: %s\r\r\n",$data{Priority}) if $data{Priority};
+    $form.=sprintf("Notification-Text: %s\r\r\n",$data{Message}) if $data{Message};
+    $form.=sprintf("Notification-Sticky: %s\r\r\n",$data{Sticky}) if $data{Sticky};
+    $form.=sprintf("Notification-Icon: %s\r\r\n",$data{Icon}) if $data{Icon};
+    if ($data{CallbackContext}) {
+        $form.=sprintf("Notification-Callback-Context: %s\r\r\n",$data{CallbackContext});
+        $form.=sprintf("Notification-Callback-Context-Type: %s\r\r\n",$data{CallbackContextType});
+    }
+    if ($data{CallbackTarget}) { # BOTH method are provided here for GfW compatability.
+        $form.=sprintf("Notification-Callback-Context-Target: %s\r\r\n",$data{CallbackTarget});
+        $form.=sprintf("Notification-Callback-Target: %s\r\r\n",$data{CallbackTarget});
+    }
+    if (ref($data{Custom}) eq 'HASH') {
+        foreach my $header (sort keys %{$data{Custom}}){
+            $form.=sprintf("X-%s: %s\r\r\n",$header,$data{Custom}{$header});
+        }
+    }
+
+    $form =~ s!\r\r\n!\r\n!g;
+    $form .= "\r\n";
+    print $form if $self->{Debug};
 
     $form = _gen_header($self, 'NOTIFY', $form);
     $sock->send($form);
@@ -132,7 +168,7 @@ EOF
         $ret  = $1 if $_ =~ /^GNTP\/1.0 -(\w+).*$/;
         last if length($_) == 0;
     }
-    if ($ret eq 'OK' && $data{CallbackContext} && $data{CallbackContextType}) {
+    if ($ret eq 'OK' && $data{CallbackContext} && $data{CallbackContextType} && !$data{CallbackTarget}) {
         push @{$self->{Callbacks}}, {
             AppName  => $self->{AppName},
             Socket   => $sock,
@@ -162,6 +198,10 @@ sub subscribe {
         Proto    => $self->{Proto},
     );
     die $@ unless $sock;
+    unless ($sock) {
+      warn "Cannot Subscribe: $@";
+      return -1;
+    }
 
     my $form = <<EOF;
 Subscriber-ID: \$(ID)
@@ -169,7 +209,7 @@ Subscriber-Name: \$(Name)
 Subscriber-Port: \$(Port)
 
 EOF
-    $form =~ s!\n!\r\n!g;
+    $form =~ s!\r?\n!\r\n!g;
     $form =~ s/\$\((\w+)\)/$data{$1}/ge;
 
     $form = _gen_header($self, 'SUBSCRIBE', $form);
@@ -177,7 +217,7 @@ EOF
     my $ret = '';
     while (<$sock>) {
         $_ =~ s!\r\n!!g;
-        print "$_\n" if $self->{Debug};
+        print "[$_]\n" if $self->{Debug};
         $ret  = $1 if $_ =~ /^GNTP\/1.0 -(\w+).*$/;
         last if length($_) == 0;
     }
@@ -188,6 +228,10 @@ EOF
         Proto => 'tcp',
         Listen => 10,
     );
+    unless ($sock) {
+      warn "Cannot Subscribe: $@";
+      return -1;
+    }
     while (1) {
         my $client = $sock->accept();
         my ($Title, $Message) = ('', '');
@@ -200,6 +244,7 @@ EOF
             # TODO
             # handling more GNTP protocols. 
             # currently, can't treat multiline header which include LF.
+            ## hrmmm...
             last if length($_) == 0;
         }
         $client->close();
@@ -225,17 +270,19 @@ sub wait {
             my $callback = $callbacks[$i];
             my $sock = $callback->{Socket};
             if (vec($bits, fileno($sock), 1)) {
-                my ($result, $type, $context) = ('', '', '');
+                my ($result, $type, $context, $id, $timestamp) = ('', '', '','','');
                 while (<$sock>) {
                     $_ =~ s!\r\n!!g;
                     print "$_\n" if $self->{Debug};
-                    $result  = $1 if $_ =~ /^Notification-Callback-Result: (.*)$/;
-                    $context = $1 if $_ =~ /^Notification-Callback-Context: (.*)$/;
-                    $type    = $1 if $_ =~ /^Notification-Callback-Context-Type: (.*)$/;
+                    $id        = $1 if $_ =~ /^Notification-ID: (.*)$/;
+                    $timestamp = $1 if $_ =~ /^Notification-Callback-Timestamp: (.*)$/;
+                    $result    = $1 if $_ =~ /^Notification-Callback-Result: (.*)$/;
+                    $context   = $1 if $_ =~ /^Notification-Callback-Context: (.*)$/;
+                    $type      = $1 if $_ =~ /^Notification-Callback-Context-Type: (.*)$/;
                     last if length($_) == 0;
                 }
                 if (ref($callback->{Function}) eq 'CODE') {
-                    $callback->{Function}->($result, $type, $context);
+                    $callback->{Function}->($result, $type, $context,$id,$timestamp);
                 }
                 splice(@callbacks, $i, 1);
             }
@@ -412,6 +459,18 @@ Initialize Growl::GNTP object. You can set few parameter of
 IO::Socket::INET. and application name will be given 'Growl::GNTP' if you
 does not specify it.
 
+=over 4
+
+  PeerHost                # 'localhost'
+  PeerPort                # 23053
+  AppName                 # 'Growl::GNTP'
+  AppIcon                 # ''
+  Password                # ''
+  PasswordHashAlgorithm   # 'MD5'
+  EncryptAlgorithm        # ''
+
+=back
+
 =back
 
 =head1 OBJECT METHODS
@@ -427,6 +486,9 @@ HASH reference like a following.
       Name        => 'MY_GROWL_NOTIFY',
       DisplayName => 'My Growl Notify',
       Enabled     => 'True',
+      Sticky      => 'False',
+      Priority    => 0,  # -2 .. 2 low -> severe
+      Icon        => ''
   }
 
 =item notify ( ARGS )
@@ -438,15 +500,20 @@ Notify item. You should be specify HASH reference like a following.
       Title               => 'Foo!',
       Message             => 'Bar!',
       Icon                => 'http://www.example.com/myface.png',
+      CallbackTarget      => '', # Used for causing a HTTP/1.1 GET request exactly as specificed by this URL. Exclusive of CallbackContext
       CallbackContextType => time, # type of the context
       CallbackContext     => 'Time',
-      CallbackFunction    => sub { warn 'callback!' },
+      CallbackFunction    => sub { warn 'callback!' }, # should only be used when a callback in use, and CallbackContext in use.
+      ID                  => '', # allows for overriding/updateing an existing notification when in use, and discriminating between alerts of the same Event
+      Custom              => { CustomHeader => 'value' }, # These will be added as custom headers as X-KEY : value, where 'X-' is prefixed to the key
+      Priotity            => 0,
+      Stickty             => 'False'
   }
 
 And callback function is given few arguments.
 
     CallbackFunction => sub {
-        my ($result, $type, $context) = @_;
+        my ($result, $type, $context, $id, $timestamp) = @_;
         print "$result: $context ($type)\n";
     }
 
