@@ -83,16 +83,22 @@ EOF
     $form = _gen_header($self, 'REGISTER', $form);
     $sock->send($form);
 
-    my $ret = '';
-    while (<$sock>) {
-        $_ =~ s!\r\n!!g;
-        print "$_\n" if $self->{Debug};
-        $ret  = $1 if $_ =~ /^GNTP\/1.0 -(\w+).*$/;
-        $ret  = $1 if $_ =~ /^Error-Description:\s*(.*)$/;
-        last if length($_) == 0;
+    my $ret = <$sock>;
+    $ret = $1 if $ret =~ /^GNTP\/1.0 (-?\w+).*$/;
+    print "$_\n" if $self->{Debug};
+
+    my $description = 'failed to register';
+    if ($ret ne 'OK') {
+        while (<$sock>) {
+            $_ =~ s!\r\n!!g;
+            print "$_\n" if $self->{Debug};
+            $description  = $1 if $_ =~ /^Error-Description:\s*(.*)$/;
+            last if length($_) == 0;
+        }
     }
     close $sock;
-    die $ret if $ret ne 'OK'
+
+    die $description if $ret ne 'OK';
 }
 
 sub notify {
@@ -156,24 +162,23 @@ sub notify {
 
     $form = _gen_header($self, 'NOTIFY', $form);
     $sock->send($form);
-    my $ret = '';
-    while (<$sock>) {
-        $_ =~ s!\r\n!!g;
-        print "$_\n" if $self->{Debug};
-        $ret  = $1 if $_ =~ /^GNTP\/1.0 -(\w+).*$/;
-        $ret  = $1 if $_ =~ /^Error-Description:\s*(.*)$/;
-        last if length($_) == 0;
+
+    my $ret = <$sock>;
+    $ret = $1 if $ret =~ /^GNTP\/1.0 (-?\w+).*$/;
+    print "$_\n" if $self->{Debug};
+
+    my $description = 'failed to notify';
+    if ($ret ne 'OK') {
+        while (<$sock>) {
+            $_ =~ s!\r\n!!g;
+            print "$_\n" if $self->{Debug};
+            $description  = $1 if $_ =~ /^Error-Description:\s*(.*)$/;
+            last if length($_) == 0;
+        }
     }
-    if ($ret eq 'OK' && $data{CallbackContext} && $data{CallbackContextType} && !$data{CallbackTarget}) {
-        push @{$self->{Callbacks}}, {
-            AppName  => $self->{AppName},
-            Socket   => $sock,
-            Function => $data{CallbackFunction},
-        };
-    } else {
-        close $sock;
-    }
-    die $ret if $ret ne 'OK'
+    close $sock;
+
+    die $description if $ret ne 'OK';
 }
 
 sub subscribe {
@@ -206,14 +211,21 @@ EOF
 
     $form = _gen_header($self, 'SUBSCRIBE', $form);
     $sock->send($form);
-    my $ret = '';
-    while (<$sock>) {
-        $_ =~ s!\r\n!!g;
-        print "[$_]\n" if $self->{Debug};
-        $ret  = $1 if $_ =~ /^GNTP\/1.0 -(\w+).*$/;
-        last if length($_) == 0;
+
+    my $ret = <$sock>;
+    $ret = $1 if $ret =~ /^GNTP\/1.0 (-?\w+).*$/;
+    print "$_\n" if $self->{Debug};
+
+    my $description = 'failed to register';
+    if ($ret ne 'OK') {
+        while (<$sock>) {
+            $_ =~ s!\r\n!!g;
+            print "$_\n" if $self->{Debug};
+            $description  = $1 if $_ =~ /^Error-Description:\s*(.*)$/;
+            last if length($_) == 0;
+        }
+        die $description if $ret ne 'OK';
     }
-    close $sock;
 
     $sock = IO::Socket::INET->new(
         LocalPort => $data{Port},
@@ -222,13 +234,15 @@ EOF
     );
     die $@ unless $sock;
 
+    $description = 'failed to subscribe';
     while (1) {
         my $client = $sock->accept();
         my ($Title, $Message) = ('', '');
         while (<$client>){
             $_ =~ s!\r\n!!g;
             print "$_\n" if $self->{Debug};
-            $ret     = $1 if $_ =~ /^GNTP\/1.0 -(\w+).*/;
+            $ret     = $1 if $_ =~ /^GNTP\/1.0 (\w+).*/;
+            $description  = $1 if $_ =~ /^Error-Description:\s*(.*)$/;
             $Title   = $1 if $_ =~ /^Notification-Title: (.*)\r\n/;
             $Message = $1 if $_ =~ /^Notification-Text: (.*)\r\n/;
             # TODO
@@ -243,7 +257,8 @@ EOF
             $callback->($Title, $Message);
         }
     }
-    return $ret eq 'OK';
+
+    die $description if $ret ne 'OK';
 }
 
 sub wait {
