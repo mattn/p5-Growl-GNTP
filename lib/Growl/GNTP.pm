@@ -7,7 +7,7 @@ use Data::UUID;
 use Crypt::CBC;
 use Digest::MD5 qw/md5_hex/;
 use Digest::SHA qw/sha1_hex sha256_hex/;
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 sub new {
     my $class = shift;
@@ -41,10 +41,7 @@ sub register {
         PeerPort => $self->{PeerPort},
         Proto    => $self->{Proto},
     );
-    unless ($sock) {
-      warn "Cannot Register: $@";
-      return -1;
-    }
+    die $@ unless $sock;
 
     my $form = <<EOF;
 Application-Name: $AppName
@@ -91,10 +88,11 @@ EOF
         $_ =~ s!\r\n!!g;
         print "$_\n" if $self->{Debug};
         $ret  = $1 if $_ =~ /^GNTP\/1.0 -(\w+).*$/;
+        $ret  = $1 if $_ =~ /^Error-Description:\s*(.*)$/;
         last if length($_) == 0;
     }
     close $sock;
-    return $ret eq 'OK';
+    die $ret if $ret ne 'OK'
 }
 
 sub notify {
@@ -127,10 +125,7 @@ sub notify {
         PeerPort => $self->{PeerPort},
         Proto    => $self->{Proto},
     );
-    unless ($sock) {
-        warn "Cannot Notify: $@";
-        return -1;
-    }
+    die $@ unless $sock;
 
     my $form;
     $form.=sprintf("Application-Name: %s\r\r\n",$data{AppName});
@@ -166,6 +161,7 @@ sub notify {
         $_ =~ s!\r\n!!g;
         print "$_\n" if $self->{Debug};
         $ret  = $1 if $_ =~ /^GNTP\/1.0 -(\w+).*$/;
+        $ret  = $1 if $_ =~ /^Error-Description:\s*(.*)$/;
         last if length($_) == 0;
     }
     if ($ret eq 'OK' && $data{CallbackContext} && $data{CallbackContextType} && !$data{CallbackTarget}) {
@@ -177,7 +173,7 @@ sub notify {
     } else {
         close $sock;
     }
-    return $ret eq 'OK';
+    die $ret if $ret ne 'OK'
 }
 
 sub subscribe {
@@ -198,10 +194,6 @@ sub subscribe {
         Proto    => $self->{Proto},
     );
     die $@ unless $sock;
-    unless ($sock) {
-      warn "Cannot Subscribe: $@";
-      return -1;
-    }
 
     my $form = <<EOF;
 Subscriber-ID: \$(ID)
@@ -228,10 +220,8 @@ EOF
         Proto => 'tcp',
         Listen => 10,
     );
-    unless ($sock) {
-      warn "Cannot Subscribe: $@";
-      return -1;
-    }
+    die $@ unless $sock;
+
     while (1) {
         my $client = $sock->accept();
         my ($Title, $Message) = ('', '');
@@ -374,7 +364,7 @@ sub _gen_encrypt {
             my $cbc = Crypt::CBC->new(
                 -key => substr($key, 0, 24),
                 -iv => $iv,
-                -keysize => 24,
+				-keysize => 24,
                 -header => 'none',
                 -literal_key => 1,
                 -padding => 'standard',
