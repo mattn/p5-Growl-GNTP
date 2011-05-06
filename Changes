@@ -1,11 +1,14 @@
 Revision history for Perl extension Growl::GNTP
 
+0.09    Fri May 06 10:00:00 2011
+        - accept -(OK|NG) response.
+
 0.08    Mon Apr 18 11:42:00 2011
-		- die when failed to regist or notify.
+        - die when failed to regist or notify.
 
 0.07    Mon Aug 17 00:09:00 2009
-		- applied patch from Jason Plum. changes for the GfW updates and
-		  graceful failure.
+        - applied patch from Jason Plum. changes for the GfW updates and
+          graceful failure.
 
 0.06    Thu Jun 11 10:37:00 2009
         - renamed from Net::Growl::GNTP.
