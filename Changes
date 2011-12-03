@@ -1,5 +1,11 @@
 Revision history for Perl extension Growl::GNTP
 
+0.11    Dec Sun 04 00:45:31 2011
+        - fix regexp pattern to match response.
+
+0.10    Wed Aug 10 02:41:00 2011
+        - pass test.
+
 0.09    Fri May 06 10:00:00 2011
         - accept -(OK|NG) response.
 

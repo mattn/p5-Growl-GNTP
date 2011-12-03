@@ -7,7 +7,7 @@ use Data::UUID;
 use Crypt::CBC;
 use Digest::MD5 qw/md5_hex/;
 use Digest::SHA qw/sha1_hex sha256_hex/;
-our $VERSION = '0.09';
+our $VERSION = '0.11';
 
 sub new {
     my $class = shift;
@@ -84,7 +84,7 @@ EOF
     $sock->send($form);
 
     my $ret = <$sock>;
-    $ret = $1 if $ret =~ /^GNTP\/1\.0 -?(\w+).*$/;
+    $ret = $1 if $ret =~ /^GNTP\/1\.0 -?(\w+)/;
     print "$_\n" if $self->{Debug};
 
     my $description = 'failed to register';
@@ -164,7 +164,7 @@ sub notify {
     $sock->send($form);
 
     my $ret = <$sock>;
-    $ret = $1 if $ret =~ /^GNTP\/1\.0 -?(\w+).*$/;
+    $ret = $1 if $ret =~ /^GNTP\/1\.0 -?(\w+)/;
     print "$_\n" if $self->{Debug};
 
     my $description = 'failed to notify';
@@ -213,7 +213,7 @@ EOF
     $sock->send($form);
 
     my $ret = <$sock>;
-    $ret = $1 if $ret =~ /^GNTP\/1\.0 -?(\w+).*$/;
+    $ret = $1 if $ret =~ /^GNTP\/1\.0 -?(\w+)/;
     print "$_\n" if $self->{Debug};
 
     my $description = 'failed to register';
@@ -241,7 +241,7 @@ EOF
         while (<$client>){
             $_ =~ s!\r\n!!g;
             print "$_\n" if $self->{Debug};
-            $ret     = $1 if $_ =~ /^GNTP\/1\.0 -?(\w+).*/;
+            $ret     = $1 if $_ =~ /^GNTP\/1\.0 -?(\w+)/;
             $description  = $1 if $_ =~ /^Error-Description:\s*(.*)$/;
             $Title   = $1 if $_ =~ /^Notification-Title: (.*)\r\n/;
             $Message = $1 if $_ =~ /^Notification-Text: (.*)\r\n/;
