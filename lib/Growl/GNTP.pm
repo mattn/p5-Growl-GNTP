@@ -110,6 +110,7 @@ sub notify {
         Message             => $args{Message} || '',#optional
         Icon                => $args{Icon} || '', #optional
         ID                  => $args{ID} || '', # optional
+        CoalescingID        => $args{CoalescingID} || '', # optional
         Priority            => _translate_int($args{Priority} || 0), #optional
         Sticky              => _translate_bool($args{Sticky} || 'False'), #optional
         CallbackContext     => $args{CallbackContext} || '',#optional
@@ -142,6 +143,7 @@ sub notify {
     $form.=sprintf("Notification-Text: %s\r\r\n",$data{Message}) if $data{Message};
     $form.=sprintf("Notification-Sticky: %s\r\r\n",$data{Sticky}) if $data{Sticky};
     $form.=sprintf("Notification-Icon: %s\r\r\n",$data{Icon}) if $data{Icon};
+    $form.=sprintf("Notification-Coalescing-ID: %s\r\r\n",$data{CoalescingID}) if $data{CoalescingID};
     if ($data{CallbackContext}) {
         $form.=sprintf("Notification-Callback-Context: %s\r\r\n",$data{CallbackContext});
         $form.=sprintf("Notification-Callback-Context-Type: %s\r\r\n",$data{CallbackContextType});
