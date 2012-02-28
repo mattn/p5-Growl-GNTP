@@ -1,5 +1,12 @@
 Revision history for Perl extension Growl::GNTP
 
+
+0.13    Feb Thu 28 15:58:00 2012
+        - remove sticky/priority from register options.
+
+0.12    Dec Wed 07 09:16:01 2011
+        - support updating notification.
+
 0.11    Dec Sun 04 00:45:31 2011
         - fix regexp pattern to match response.
 
