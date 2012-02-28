@@ -59,8 +59,6 @@ EOF
             DisplayName => $notification->{DisplayName}
               || $notification->{Name} || "Growl::GNTP Notify$count",
             Enabled     => _translate_bool($notification->{Enabled} || 'True'),
-            Sticky      => _translate_bool($notification->{Sticky} || 'False'),
-            Priority    => _translate_int($notification->{Priority} || 0),
             Icon        => $notification->{Icon} || '', # will default to Application-Icon if not specified.
         );
         $data{$_} =~ s!\r\n!\n! for ( keys %data );
@@ -69,8 +67,6 @@ EOF
 Notification-Name: \$(Name)
 Notification-Display-Name: \$(DisplayName)
 Notification-Enabled: \$(Enabled)
-Notification-Sticky: \$(Sticky)
-Notification-Priority: \$(Priority)
 Notification-Icon: \$(Icon)
 
 EOF
@@ -493,8 +489,6 @@ HASH reference like a following.
       Name        => 'MY_GROWL_NOTIFY',
       DisplayName => 'My Growl Notify',
       Enabled     => 'True',
-      Sticky      => 'False',
-      Priority    => 0,  # -2 .. 2 low -> severe
       Icon        => ''
   }
 
@@ -513,8 +507,8 @@ Notify item. You should be specify HASH reference like a following.
       CallbackFunction    => sub { warn 'callback!' }, # should only be used when a callback in use, and CallbackContext in use.
       ID                  => '', # allows for overriding/updateing an existing notification when in use, and discriminating between alerts of the same Event
       Custom              => { CustomHeader => 'value' }, # These will be added as custom headers as X-KEY : value, where 'X-' is prefixed to the key
-      Priotity            => 0,
-      Stickty             => 'False'
+      Priority            => 0,  # -2 .. 2 low -> severe
+      Sticky              => 'False'
   }
 
 And callback function is given few arguments.
