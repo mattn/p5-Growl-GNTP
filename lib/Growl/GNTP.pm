@@ -507,7 +507,7 @@ Notify item. You should be specify HASH reference like a following.
       CallbackFunction    => sub { warn 'callback!' }, # should only be used when a callback in use, and CallbackContext in use.
       ID                  => '', # allows for overriding/updateing an existing notification when in use, and discriminating between alerts of the same Event
       Custom              => { CustomHeader => 'value' }, # These will be added as custom headers as X-KEY : value, where 'X-' is prefixed to the key
-      Priotity            => 0,  # -2 .. 2 low -> severe
+      Priority            => 0,  # -2 .. 2 low -> severe
       Sticky              => 'False'
   }
 
