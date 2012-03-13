@@ -51,6 +51,14 @@ Notifications-Count: $count
 EOF
     $form =~ s!\n!\r\n!g;
 
+    my $identifier;
+    if (-f $AppIcon) {
+        open my $f, "<:raw", $AppIcon;
+        $identifier = do { local $/; <$f> };
+        close $f;
+        $AppIcon = "x-growl-resource://" . Digest::MD5::md5_hex(Digest::MD5->new->add($identifier)->digest);
+    }
+
     $count = 0;
     for my $notification ( @{$notifications} ) {
         $count++;
@@ -73,6 +81,13 @@ EOF
         $subform =~ s!\n!\r\n!g;
         $subform =~ s/\$\((\w+)\)/$data{$1}/ge;
         $form .= $subform;
+    }
+    if ($identifier) {
+        $form.=sprintf("Identifier: %s\r\r\n",substr($AppIcon, 19));
+        $form.=sprintf("Length: %d\r\r\n\r\r\n",length $identifier);
+        $form =~ s!\r\r\n!\r\n!g;
+        $form .= $identifier;
+        $form .= "\r\n\r\n";
     }
 
     print $form if $self->{Debug};
@@ -117,6 +132,14 @@ sub notify {
     );
     $data{$_} =~ s!\r\n!\n! for ( keys %data );
 
+    my $identifier;
+    if (-f $data{Icon}) {
+        open my $f, "<:raw", $data{Icon};
+        $identifier = do { local $/; <$f> };
+        close $f;
+        $data{Icon} = "x-growl-resource://" . Digest::MD5::md5_hex(Digest::MD5->new->add($identifier)->digest);
+    }
+
     # once GfW v2.0.0.20, this CallbackTarget can be removed.
     if ($data{CallbackTarget}) {
         $data{CallbackContext} = $data{CallbackContext} || 'TARGET';
@@ -154,7 +177,16 @@ sub notify {
         }
     }
 
-    $form =~ s!\r\r\n!\r\n!g;
+    if ($identifier) {
+        $form .= "\r\r\n";
+        $form.=sprintf("Identifier: %s\r\r\n",substr($data{Icon}, 19));
+        $form.=sprintf("Length: %d\r\r\n\r\r\n",length $identifier);
+        $form =~ s!\r\r\n!\r\n!g;
+        $form .= $identifier;
+        $form .= "\r\n";
+    } else {
+        $form =~ s!\r\r\n!\r\n!g;
+    }
     $form .= "\r\n";
     print $form if $self->{Debug};
 
