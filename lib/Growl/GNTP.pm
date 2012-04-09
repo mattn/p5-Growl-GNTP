@@ -43,14 +43,6 @@ sub register {
     );
     die $@ unless $sock;
 
-    my $form = <<EOF;
-Application-Name: $AppName
-Application-Icon: $AppIcon
-Notifications-Count: $count
-
-EOF
-    $form =~ s!\n!\r\n!g;
-
     my $identifier;
     if (-f $AppIcon) {
         open my $f, "<:raw", $AppIcon;
@@ -58,6 +50,14 @@ EOF
         close $f;
         $AppIcon = "x-growl-resource://" . Digest::MD5::md5_hex(Digest::MD5->new->add($identifier)->digest);
     }
+
+    my $form = <<EOF;
+Application-Name: $AppName
+Application-Icon: $AppIcon
+Notifications-Count: $count
+
+EOF
+    $form =~ s!\n!\r\n!g;
 
     $count = 0;
     for my $notification ( @{$notifications} ) {
