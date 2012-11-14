@@ -3,7 +3,7 @@ perl:
   - 5.16
   - 5.14
 install:
-  - cpanm --installdep .
+  - cpanm --installdep -v .
   - perl Makefile.PL
   - make
   - make test
