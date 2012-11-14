@@ -2,3 +2,8 @@ language: perl
 perl:
   - 5.16
   - 5.14
+install:
+  - cpanm --installdep .
+  - perl Makefile.PL
+  - make
+  - make test
