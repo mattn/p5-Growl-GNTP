@@ -18,7 +18,7 @@ $growl->register([
 ]);
 
 $growl->notify(
-    Event => "foo",
+    Name => "foo",
     Title => "おうっふー おうっふー1",
     Message => "大事な事なので\n2回言いました",
     Icon => "http://mattn.kaoriya.net/images/logo.png",

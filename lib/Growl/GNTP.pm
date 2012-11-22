@@ -116,7 +116,7 @@ sub notify {
     my ( $self, %args ) = @_;
     my %data = (
         AppName             => $self->{AppName},
-        Event               => $args{Event} || '',
+        Name                => $args{Name} || $args{Event} || '',
         Title               => $args{Title} || '',
         Message             => $args{Message} || '',#optional
         Icon                => $args{Icon} || '', #optional
@@ -155,7 +155,7 @@ sub notify {
 
     my $form;
     $form.=sprintf("Application-Name: %s\r\r\n",$data{AppName});
-    $form.=sprintf("Notification-Name: %s\r\r\n",$data{Event});
+    $form.=sprintf("Notification-Name: %s\r\r\n",$data{Name});
     $form.=sprintf("Notification-Title: %s\r\r\n",$data{Title});
     $form.=sprintf("Notification-ID: %s\r\r\n",$data{ID}) if $data{ID};
     $form.=sprintf("Notification-Priority: %s\r\r\n",$data{Priority}) if $data{Priority};
@@ -474,7 +474,7 @@ Growl::GNTP - Perl implementation of GNTP Protocol (Client Part)
   ]);
   
   $growl->notify(
-      Event => "foo",
+      Name => "foo",
       Title => "my notify",
       Message => "my message",
       Icon => "http://www.example.com/my-face.png",
@@ -529,7 +529,7 @@ HASH reference like a following.
 Notify item. You should be specify HASH reference like a following.
 
   {
-      Event               => 'Warn', # name of notification
+      Name                => 'Warn', # name of notification
       Title               => 'Foo!',
       Message             => 'Bar!',
       Icon                => 'http://www.example.com/myface.png',
@@ -537,7 +537,7 @@ Notify item. You should be specify HASH reference like a following.
       CallbackContextType => time, # type of the context
       CallbackContext     => 'Time',
       CallbackFunction    => sub { warn 'callback!' }, # should only be used when a callback in use, and CallbackContext in use.
-      ID                  => '', # allows for overriding/updateing an existing notification when in use, and discriminating between alerts of the same Event
+      ID                  => '', # allows for overriding/updateing an existing notification when in use, and discriminating between alerts of the same Name
       Custom              => { CustomHeader => 'value' }, # These will be added as custom headers as X-KEY : value, where 'X-' is prefixed to the key
       Priority            => 0,  # -2 .. 2 low -> severe
       Sticky              => 'False'
