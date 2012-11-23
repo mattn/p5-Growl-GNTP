@@ -2,7 +2,7 @@ language: perl
 perl:
   - 5.16
   - 5.14
-before_install: cpanm Module::Install::AuthorTests
+before_install: cpanm Module::Install::AuthorTests Module::Install::TestBase
 install:
   - cpanm --installdep -v .
   - perl Makefile.PL
