@@ -1,6 +1,9 @@
 Revision history for Perl extension Growl::GNTP
 
 
+0.16    Nov Fri 23 23:49:00 2012
+        - treat argument Name of notify() as Event.
+
 0.15    Nov Fri 23 23:49:00 2012
         - treat argument Name of notify() as Event.
 
