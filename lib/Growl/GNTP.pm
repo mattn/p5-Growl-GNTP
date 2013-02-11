@@ -15,6 +15,7 @@ sub new {
     $args{Proto}    ||= 'tcp';
     $args{PeerHost} ||= 'localhost';
     $args{PeerPort} ||= 23053;
+    $args{Timeout}  ||= 5;
     $args{AppName}  ||= 'Growl::GNTP';
     $args{AppIcon}  ||= '';
     $args{Password} ||= '';
@@ -40,6 +41,7 @@ sub register {
         PeerAddr => $self->{PeerHost},
         PeerPort => $self->{PeerPort},
         Proto    => $self->{Proto},
+        Timeout  => $self->{Timeout},
     );
     die $@ unless $sock;
 
@@ -150,6 +152,7 @@ sub notify {
         PeerAddr => $self->{PeerHost},
         PeerPort => $self->{PeerPort},
         Proto    => $self->{Proto},
+        Timeout  => $self->{Timeout},
     );
     die $@ unless $sock;
 
@@ -227,6 +230,7 @@ sub subscribe {
         PeerAddr => $self->{PeerHost},
         PeerPort => $self->{PeerPort},
         Proto    => $self->{Proto},
+        Timeout  => $self->{Timeout},
     );
     die $@ unless $sock;
 
@@ -261,6 +265,7 @@ EOF
         LocalPort => $data{Port},
         Proto => 'tcp',
         Listen => 10,
+        Timeout => $self->{Timeout},
     );
     die $@ unless $sock;
 
@@ -498,6 +503,7 @@ does not specify it.
 
   PeerHost                # 'localhost'
   PeerPort                # 23053
+  Timeout                 # 5
   AppName                 # 'Growl::GNTP'
   AppIcon                 # ''
   Password                # ''
