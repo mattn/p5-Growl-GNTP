@@ -7,7 +7,7 @@ use Data::UUID;
 use Crypt::CBC;
 use Digest::MD5 qw/md5_hex/;
 use Digest::SHA qw/sha1_hex sha256_hex/;
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 sub new {
     my $class = shift;
