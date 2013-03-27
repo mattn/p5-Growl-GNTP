@@ -2,9 +2,9 @@ Revision history for Perl extension Growl::GNTP
 
 {{$NEXT}}
 
-
 0.17    Feb Tue 12 10:05:00 2013
         - add Timeout option.
+        - minilize
 
 0.16    Nov Fri 23 23:49:00 2012
         - treat argument Name of notify() as Event.
