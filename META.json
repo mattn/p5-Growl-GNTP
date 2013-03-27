@@ -41,9 +41,10 @@
       },
       "homepage" : "https://github.com/mattn/p5-Growl-GNTP",
       "repository" : {
-         "url" : "https://github.com/mattn/p5-Growl-GNTP.git",
+         "type" : "git",
+         "url" : "git://github.com/mattn/p5-Growl-GNTP",
          "web" : "https://github.com/mattn/p5-Growl-GNTP"
       }
    },
-   "version" : "0.17"
+   "version" : "0.18"
 }

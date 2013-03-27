@@ -11,3 +11,5 @@ Makefile.old
 /Build
 !Build/
 !META.json
+MYMETA.json
+MYMETA.yml
