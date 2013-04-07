@@ -4,7 +4,7 @@
       "Yasuhiro Matsumoto <mattn.jp@gmail.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v0.0.49, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Minilla/v0.0.51, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -13,6 +13,16 @@
       "version" : "2"
    },
    "name" : "Growl-GNTP",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "xt",
+         "inc",
+         "share",
+         "eg",
+         "examples"
+      ]
+   },
    "prereqs" : {
       "build" : {
          "requires" : {
@@ -21,7 +31,19 @@
       },
       "configure" : {
          "requires" : {
+            "CPAN::Meta" : "0",
+            "CPAN::Meta::Prereqs" : "0",
+            "Module::Build" : "0.38",
             "Module::Build::Tiny" : "0"
+         }
+      },
+      "develop" : {
+         "requires" : {
+            "Pod::Wordlist::hanekomu" : "0",
+            "Test::CPAN::Meta" : "0",
+            "Test::MinimumVersion" : "0.10108",
+            "Test::Pod" : "1.41",
+            "Test::Spelling" : "0"
          }
       },
       "runtime" : {
@@ -46,5 +68,14 @@
          "web" : "https://github.com/mattn/p5-Growl-GNTP"
       }
    },
-   "version" : "0.18"
+   "version" : "0.19",
+   "x_contributors" : [
+      "unknown <Administrator@.(none)>",
+      "Yuki Ibe <yibe@yibe.org>",
+      "mattn <mattn@poo.(none)>",
+      "Marc Thielemann <marc.thielemann@biama.de>",
+      "sugyan <sugi1982@gmail.com>",
+      "Henrik Brix Andersen <henrik@brixandersen.dk>",
+      "John Morrissey <jwm@horde.net>"
+   ]
 }
