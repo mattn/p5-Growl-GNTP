@@ -4,7 +4,7 @@
       "Yasuhiro Matsumoto <mattn.jp@gmail.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v0.0.51, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Minilla/v3.0.1, CPAN::Meta::Converter version 2.150001",
    "license" : [
       "perl_5"
    ],
@@ -20,30 +20,24 @@
          "inc",
          "share",
          "eg",
-         "examples"
+         "examples",
+         "author",
+         "builder"
       ]
    },
    "prereqs" : {
-      "build" : {
-         "requires" : {
-            "ExtUtils::MakeMaker" : "6.36"
-         }
-      },
       "configure" : {
          "requires" : {
-            "CPAN::Meta" : "0",
-            "CPAN::Meta::Prereqs" : "0",
-            "Module::Build" : "0.38",
-            "Module::Build::Tiny" : "0"
+            "Module::Build::Tiny" : "0.035"
          }
       },
       "develop" : {
          "requires" : {
-            "Pod::Wordlist::hanekomu" : "0",
             "Test::CPAN::Meta" : "0",
-            "Test::MinimumVersion" : "0.10108",
+            "Test::MinimumVersion::Fast" : "0.04",
+            "Test::PAUSE::Permissions" : "0.04",
             "Test::Pod" : "1.41",
-            "Test::Spelling" : "0"
+            "Test::Spellunker" : "v0.2.7"
          }
       },
       "runtime" : {
@@ -65,7 +59,7 @@
       "homepage" : "https://github.com/mattn/p5-Growl-GNTP",
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/mattn/p5-Growl-GNTP",
+         "url" : "git://github.com/mattn/p5-Growl-GNTP.git",
          "web" : "https://github.com/mattn/p5-Growl-GNTP"
       }
    },
