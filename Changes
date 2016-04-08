@@ -2,6 +2,9 @@ Revision history for Perl extension Growl::GNTP
 
 {{$NEXT}}
 
+0.21 2016-04-08T16:13:37Z
+        - removed dependency of IO::Socket::PortState.
+
 0.20 2013-04-07T11:30:09Z
         - depend on IO::Socket::PortState.
 

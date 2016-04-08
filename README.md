@@ -11,7 +11,6 @@ Growl::GNTP - Perl implementation of GNTP Protocol (Client Part)
         { Name => "bar", },
     ]);
     
-
     $growl->notify(
         Name => "foo",
         Title => "my notify",
@@ -31,14 +30,14 @@ Growl::GNTP is Perl implementation of GNTP Protocol (Client Part)
     IO::Socket::INET. and application name will be given 'Growl::GNTP' if you
     does not specify it.
 
-            PeerHost                # 'localhost'
-            PeerPort                # 23053
-            Timeout                 # 5
-            AppName                 # 'Growl::GNTP'
-            AppIcon                 # ''
-            Password                # ''
-            PasswordHashAlgorithm   # 'MD5'
-            EncryptAlgorithm        # ''
+    >         PeerHost                # 'localhost'
+    >         PeerPort                # 23053
+    >         Timeout                 # 5
+    >         AppName                 # 'Growl::GNTP'
+    >         AppIcon                 # ''
+    >         Password                # ''
+    >         PasswordHashAlgorithm   # 'MD5'
+    >         EncryptAlgorithm        # ''
 
 # OBJECT METHODS
 
@@ -104,7 +103,7 @@ Yasuhiro Matsumoto <mattn.jp@gmail.com>
 
 # SEE ALSO
 
-[Net::Growl](http://search.cpan.org/perldoc?Net::Growl), [Net::GrowlClient](http://search.cpan.org/perldoc?Net::GrowlClient), [Mac::Growl](http://search.cpan.org/perldoc?Mac::Growl),
+[Net::Growl](https://metacpan.org/pod/Net::Growl), [Net::GrowlClient](https://metacpan.org/pod/Net::GrowlClient), [Mac::Growl](https://metacpan.org/pod/Mac::Growl),
 `http://www.growlforwindows.com/gfw/help/gntp.aspx`
 
 # LICENSE
